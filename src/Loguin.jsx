@@ -1,6 +1,14 @@
 import React from 'react';
+import { useNavigate  } from 'react-router-dom';
 
 const Login = () => {
+
+    const navigate = useNavigate();
+
+    const redirectToLogin = () => {
+        navigate('/Register');
+    };
+
     return (
         <div className="r-container">
             <span className='title'>Notes App</span>
@@ -10,7 +18,7 @@ const Login = () => {
                 <input type='password' placeholder='password'></input>
                 <button>Login</button>
             </form>
-            <p>No Tienes Cuenta? Loguin</p>
+            <p>No Tienes Cuenta? <span onClick={redirectToLogin}>Register</span></p>
         </div>
     );
 }
