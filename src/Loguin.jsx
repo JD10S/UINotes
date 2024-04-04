@@ -8,15 +8,19 @@ const Login = () => {
     const redirectToLogin = () => {
         navigate('/Register');
     };
-
+ 
+    const handleLogin = (e) => {
+        e.preventDefault(); 
+        navigate('/Notes');
+    };
     return (
         <div className="r-container">
             <span className='title'>Notes App</span>
             <span className='sub-title'>Login</span>
-            <form >
+            <form onSubmit={handleLogin}>
                 <input type='text' placeholder='Name'></input>
                 <input type='password' placeholder='password'></input>
-                <button>Login</button>
+                <button type="submit">Login</button>
             </form>
             <p>No Tienes Cuenta? <span onClick={redirectToLogin}>Register</span></p>
         </div>
