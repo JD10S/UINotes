@@ -1,15 +1,16 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import { json, useNavigate  } from 'react-router-dom';
-import md5 from 'md5';
-import { Axios } from 'axios';
+import axios from 'axios';
+import Cookies from 'universal-cookie';
+
 
 const Login = () => {
 
     const baseUrl ="https://localhost:7169/UserControllers/loguin";
-
-
+    const navigate = useNavigate();
+    const cookies = new Cookies();
     const [form, setForm]= useState({
-        username:'',
+        userName:'',
         password:''
     });
     
@@ -22,45 +23,45 @@ const Login = () => {
         console.log(form)
     }
 
-    const navigate = useNavigate();
 
     const redirectToLogin = () => {
         navigate('/Register');
     };
 
-
- 
-    const handleLogin = (e) => {
-        e.preventDefault(); 
-        navigate('/Notes');
-    };
-
-    const iniciarSesion=async()=>{
-        await Axios.get(baseUrl+`/${form.username}/${md5(form.password)}`)
-        .then(Response=>{
-            return Response.data;
-        }).then(Response=>{
-            if(Response.length>0){
-                var respuesta=Response[0];
-                console.log(respuesta);
-            }else {
-                alert('El usuario o la contraseña son incorrectos')
+     useEffect(()=>{
+            if (!cookies.get('id')) {
+                navigate('/'); 
             }
-
-        })
-        
-        .Catch(Error=>{
-            console.log(Error)
-        })
-    }
+     }, []);
+     
+     const iniciarSesion=async()=>{
+     try {
+         const response = await axios.post(`${baseUrl}?userName=${form.userName}&password=${form.password}`);
+         const data = response.data;
+         if (data.length > 0) {
+             var respuesta = data[0];
+                cookies.post('id',respuesta.id,{path:'/'});
+                cookies.post('userName',respuesta.userName,{path:'/'});
+                cookies.post('password',respuesta.password,{path:'/'});
+            alert("Bienvenido:" + respuesta.userName+"!");
+             navigate('/Notes');
+                
+         } else {
+             alert("Usuario o contraseña incorrectos");
+         }
+     } catch (error) {
+         console.log(error);
+     }
+ }
+ 
     return (
         <div className="r-container">
             <span className='title'>Notes App</span>
             <span className='sub-title'>Login</span>
-            <form onSubmit={handleLogin}>
-                <input name='username' type='text' placeholder='Name' onChange={handleChange}></input>
+            <form onSubmit={e => e.preventDefault()}>
+                <input name='userName' type='text' placeholder='Name' onChange={handleChange}></input>
                 <input name='password' type='password' placeholder='password' onChange={handleChange}></input>
-                <button type="submit" onClick={()=>iniciarSesion()}>Login</button>
+                <button  onClick={()=>iniciarSesion()}>Login</button>
             </form>
             <p>No Tienes Cuenta? <span onClick={redirectToLogin}>Register</span></p>
         </div>
@@ -68,3 +69,34 @@ const Login = () => {
 }
 
 export default Login;
+
+    // const handleLogin = (e) => {
+    //     e.preventDefault(); 
+    //     navigate('/Notes');
+    // };
+//https://localhost:7169/UserControllers/loguin?userName=jeffer&password=123
+  
+
+    // const iniciarSesion = async () => {
+    //     if (!form.userName || !form.password) {
+    //         alert("Por favor, ingresa tanto el nombre de usuario como la contraseña");
+    //         return;
+    //     }
+
+    //     try {
+    //         const response = await axios.post(baseUrl, {
+    //             userName: form.userName,
+    //             password: form.password
+    //         });
+    //         const data = response.data;
+    //         if (data.token) {
+    //             cookies.post('token', data.token, { path: '/' });
+    //             navigate('/Notes');
+    //         } else {
+    //             alert("Usuario o contraseña incorrectos");
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         alert("Se produjo un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
+    //     }
+    // }
