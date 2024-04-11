@@ -2,6 +2,7 @@ import React, {useState,useEffect} from 'react';
 import { json, useNavigate  } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
+import Notes from './Notes';
 
 
 const Login = () => {
@@ -38,19 +39,18 @@ const Login = () => {
      try {
          const response = await axios.post(`${baseUrl}?userName=${form.userName}&password=${form.password}`);
          const data = response.data;
-         if (data.length > 0) {
-             var respuesta = data[0];
-                cookies.post('id',respuesta.id,{path:'/'});
-                cookies.post('userName',respuesta.userName,{path:'/'});
-                cookies.post('password',respuesta.password,{path:'/'});
-            alert("Bienvenido:" + respuesta.userName+"!");
+        
+         if (data.token) {
+             cookies.set('token', data.token, { path: '/' });
+             cookies.set('userId', data.user.id, { path: '/' });
+             alert("¡Bienvenido: " + data.user.userName + "!");
              navigate('/Notes');
-                
          } else {
              alert("Usuario o contraseña incorrectos");
          }
      } catch (error) {
          console.log(error);
+         alert("Usuario o contraseña incorrectos");
      }
  }
  
