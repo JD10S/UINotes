@@ -10,7 +10,7 @@ const Notes = (props) => {
 
     const cerrarSesion=()=>{
         cookies.remove('id',{path:'/'});
-        cookies.remove('username',{path:'/'});
+        cookies.remove('userName',{path:'/'});
         cookies.remove('password',{path:'/'});
         navigate('/');
         
@@ -32,7 +32,7 @@ const Notes = (props) => {
             <br />
             <h5>Iduser: {cookies.get('id')}</h5>
             <br />
-            <h5>Usuario: {cookies.get('username')}</h5>
+            <h5>Usuario: {cookies.get('userName')}</h5>
             <br />
             <h5>Contraseña: {cookies.get('password')}</h5>
         </div>

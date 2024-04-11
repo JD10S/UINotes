@@ -39,7 +39,7 @@ const Register = () => {
             }
         } catch (error) {
             console.log(error);
-            setError('Error al registrar usuario: ' + error.message);
+            setError('Error al registrar usuario, Ingrese usuario y contraseña' );
         }
     }
 
