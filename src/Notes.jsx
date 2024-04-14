@@ -1,41 +1,53 @@
-import React, { useEffect } from 'react';
-import Cookies from 'universal-cookie';
+import React, { useEffect, useState } from 'react';
+import { Layout } from 'antd';
+import Logo from './components/logo';
+import MenuList from './components/menuList';
+import ExitButton from './components/buttonExit';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'universal-cookie';
 
+const { Sider } = Layout;
 
-const Notes = (props) => {
-
-    const navigate  = useNavigate();
+const Notes = () => {
+    const navigate = useNavigate(); 
     const cookies = new Cookies();
+    const [username, setUsername] = useState('');
 
-    const cerrarSesion=()=>{
-        cookies.remove('id',{path:'/'});
-        cookies.remove('userName',{path:'/'});
-        cookies.remove('password',{path:'/'});
-        navigate('/');
-        
-    }
+    
+    const decodeToken = (token) => {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    };
 
-    useEffect(()=>{
-        if (!cookies.get('id')) {
-            navigate('/Notes'); 
+    useEffect(() => {
+        const token = cookies.get('token');
+        if (token) {
+            const decodedToken = decodeToken(token);
+            setUsername(decodedToken.username);
+        } else {
+            navigate('/');
         }
     }, []);
-    
+
+    const handleLogout = () => {
+        cookies.remove('token');
+        setUsername('');
+        navigate('/');
+    };
 
     return (
-        <div className='n-container'>
-            <br />
-            <button className='btn btn-danger' onClick={()=>cerrarSesion()}>Cerrar Sesion</button>
-            <br />
-            <h1>Notes</h1>
-            <br />
-            <h5>Iduser: {cookies.get('id')}</h5>
-            <br />
-            <h5>Usuario: {cookies.get('userName')}</h5>
-            <br />
-            <h5>Contraseña: {cookies.get('password')}</h5>
-        </div>
+        <Layout className="notes-container">
+            <Sider className='sidebar'>
+                <Logo />
+                <span className="username">{username}</span>
+                <ExitButton onClick={handleLogout} className="exit-button" />
+                <MenuList />
+            </Sider>
+        </Layout>
     );
 }
 
