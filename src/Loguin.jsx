@@ -30,8 +30,8 @@ const Login = () => {
     };
 
      useEffect(()=>{
-            if (!cookies.get('id')) {
-                navigate('/'); 
+            if (cookies.get('token')) {
+                navigate('/Notes'); 
             }
      }, []);
      
