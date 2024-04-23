@@ -1,77 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Input, List, message } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import axios from 'axios';
+import axios from "axios";
 import Cookies from 'universal-cookie';
 
-const MenuList = ({ handleCategoryClick }) => {
-  const baseUrl ="https://localhost:7169/CategoryControllers";
+const MenuList = () => {
+  const baseUrl = "https://localhost:7169/CategoryControllers";
   const cookies = new Cookies();
-  const userId = cookies.get('userId');
-  const [categories, setCategories] = useState({
-    titulo:''
-  });
+  const [categories, setCategories] = useState([]);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
-  const handleChange=e=>{
-    const {name, value} = e.target;
-    setCategories({
-        ...categories,
-        [name]:value
-    });
-    console.log(categories)
-}
+  useEffect(() => {
+    const savedCategories = JSON.parse(localStorage.getItem("categories")) || [];
+    setCategories(savedCategories);
+  }, []);
 
-  const handleAddCategory = async (userId) => {
+  useEffect(() => {
+    localStorage.setItem("categories", JSON.stringify(categories));
+  }, [categories]);
+
+  const handleChange = (e) => {
+    setNewCategoryName(e.target.value);
+  };
+
+  const handleAddCategory = async ({ userId, idCategory }) => {
     try {
-        const response = await axios.post(`${baseUrl}?Name=${categories.titulo}&IdUser=${userId}`);
-       
-        console.log(response.data);
+      if (newCategoryName.trim() !== "") {
+        const response = await axios.post(`${baseUrl}?Name=${newCategoryName}&IdUser=${userId}&idCategory=${idCategory}`);
+        const newCategory = response.data;
+        setCategories([...categories, newCategory]); 
+        setNewCategoryName("");
+        message.success("Categoría añadida correctamente.");
+      } else {
+        message.error("Por favor ingresa el nombre de la categoría.");
+      }
     } catch (error) {
-      
-        console.error("Error al agregar la categoría:", error);
+      console.error("Error al agregar la categoría:", error);
+      message.error("Error al agregar la categoría. Por favor, intenta de nuevo más tarde.");
+    }
+  };
+
+  const handleEditCategory = async (category) => {
+    try {
+        const editedCategory = prompt(`Editando categoría: ${category.Name}`, category.Name);
+        if (editedCategory && editedCategory.trim() !== "") {
+            await axios.put(`https://localhost:7169/CategoryControllers/${category.id}`, {
+                Name: editedCategory.trim()
+            });
+            const updatedCategories = categories.map(cat =>
+                cat.id === category.id ? { ...cat, Name: editedCategory.trim() } : cat
+            );
+            setCategories(updatedCategories);
+            message.success("Categoría editada correctamente.");
+        } else {
+            message.error("Por favor ingresa un nombre válido para la categoría.");
+        }
+    } catch (error) {
+        console.error("Error al editar la categoría:", error);
+        message.error("Error al editar la categoría. Por favor, intenta de nuevo más tarde.");
     }
 };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleAddCategory();
-    }
-  };
-
-  const handleEditCategory = (category) => {
-    const editedCategory = prompt(`Editando categoría: ${category}`, category);
-    if (editedCategory && editedCategory.trim() !== "") {
-      const updatedCategories = categories.map((cat) =>
-        cat === category ? editedCategory.trim() : cat
-      );
-      setCategories(updatedCategories);
-      message.success("Categoría editada correctamente.");
-    } else {
-      message.error("Por favor ingresa un nombre válido para la categoría.");
-    }
-  };
-
-  const handleDeleteCategory = (category) => {
-    if (window.confirm(`¿Estás seguro de eliminar la categoría: ${category}?`)) {
-      const updatedCategories = categories.filter((cat) => cat !== category);
-      setCategories(updatedCategories);
-      message.success("Categoría eliminada correctamente.");
-    }
-  };
+const handleDeleteCategory = async (category) => {
+  try {
+      if (window.confirm(`¿Estás seguro de eliminar la categoría: ${category.Name}?`)) {
+          await axios.delete(`https://localhost:7169/CategoryControllers/${category.id}`);
+          const updatedCategories = categories.filter(cat => cat.id !== category.id);
+          setCategories(updatedCategories);
+          message.success("Categoría eliminada correctamente.");
+      }
+  } catch (error) {
+      console.error("Error al eliminar la categoría:", error);
+      message.error("Error al eliminar la categoría. Por favor, intenta de nuevo más tarde.");
+  }
+};
 
   return (
     <div className="menu-container">
       <Input
-        name="titulo"
+        value={newCategoryName}
         onChange={handleChange}
-        onKeyPress={handleKeyPress}
         placeholder="Nueva categoría"
         style={{ marginBottom: "10px" }}
       />
       <Button
         type="text"
         icon={<PlusOutlined />}
-        onClick={handleAddCategory}
+        onClick={() => handleAddCategory({ userId: cookies.get('userId'), idCategory: 1 })}
         style={{ color: "white", marginBottom: "10px" }}
       >
         Añadir Categoría
@@ -83,10 +98,11 @@ const MenuList = ({ handleCategoryClick }) => {
             dataSource={categories}
             renderItem={(item) => (
               <List.Item
+                key={item.id}
                 className="category-item-container"
                 style={{ color: "white", fontSize: "16px", fontWeight: "bold" }}
               >
-                <span className="category-title">{item}</span>
+                <span className="category-title">{item.Name}</span>
                 <div className="category-actions">
                   <Button
                     type="link"
@@ -98,14 +114,14 @@ const MenuList = ({ handleCategoryClick }) => {
                   <Button
                     type="link"
                     onClick={() => handleDeleteCategory(item)}
-                    className="delete-button" 
+                    className="delete-button"
                     style={{ color: "white", marginLeft: "8px" }}
                     icon={<DeleteOutlined />}
                   />
                 </div>
               </List.Item>
             )}
-            style={{ marginTop: "10px" }} 
+            style={{ marginTop: "10px" }}
           />
         </div>
       )}
