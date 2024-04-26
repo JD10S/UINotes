@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, AutoComplete, Card, Button, Input, message } from 'antd'; 
 import Logo from './components/logo';
 import MenuList from './components/menuList';
@@ -58,12 +58,26 @@ const Notes = () => {
         navigate('/');
     };
 
-    const handleAddCard = () => {
-        const newCard = {
-            id: cards.length,
-            content: ''
-        };
-        setCards(prevCards => [...prevCards, newCard]);
+    const handleAddCard = async () => {
+        try {
+            if (selectedCategory) {
+                const response = await axios.post(`https://localhost:7169/NoteControllers`, {
+                    IdCategory: selectedCategory.id,
+                    Title: content
+                });
+                const newCard = {
+                    id: response.data.id,
+                    content: content
+                };
+                setCards(prevCards => [...prevCards, newCard]);
+                message.success("Nota añadida correctamente.");
+            } else {
+                message.error("Por favor selecciona una categoría.");
+            }
+        } catch (error) {
+            console.error("Error adding note:", error);
+            message.error("Error adding note. Please try again later.");
+        }
     };
 
     const handleCardClick = (cardId, cardContent) => {
@@ -84,7 +98,7 @@ const Notes = () => {
             </Sider>
             <Layout className="Nnotes-container" style={{ maxWidth: '400px' }}>
                 <div className="title-and-button-container">
-                    <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px' }}>{selectedCategory || 'Notas'}</h1>
+                    <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px' }}>{selectedCategory ? selectedCategory.Name : 'Notas'}</h1>
                     <Button type="primary" icon={<PlusOutlined />} style={{ marginLeft: '10px' }} onClick={handleAddCard} />
                 </div>
                 <AutoComplete style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}>
