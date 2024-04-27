@@ -122,7 +122,7 @@ const MenuList = ({ onsetSelectedCategory }) => {
       )}
       <Modal
         title="Editar Categoría"
-        visible={editModalVisible}
+        open={editModalVisible}
         onCancel={() => {setEditModalVisible(false); setEditingCategory(null); setNewCategoryName("");}}
         footer={[
           <Button key="cancel" onClick={() => {setEditModalVisible(false); setEditingCategory(null); setNewCategoryName("");}}>Cancelar</Button>,
