@@ -104,17 +104,19 @@ const MenuList = ({ onsetSelectedCategory }) => {
               style={{ color: "white" }}
               onClick={() => handleCategoryClick(category)}
             >
-              {category.name}
+              <span className="category-name">{category.name}</span>
               <div className="category-actions">
-                <EditOutlined onClick={() => {setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);}} />
-                <Popconfirm
-                  title="¿Estás seguro que quieres eliminar esta categoría?"
-                  onConfirm={() => handleDelete(category.idCategory)}
-                  okText="Sí"
-                  cancelText="No"
-                >
-                  <DeleteOutlined />
-                </Popconfirm>
+                <div className="icon-container">
+                  <EditOutlined onClick={() => {setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);}} />
+                  <Popconfirm
+                    title="¿Estás seguro que quieres eliminar esta categoría?"
+                    onConfirm={() => handleDelete(category.idCategory)}
+                    okText="Sí"
+                    cancelText="No"
+                  >
+                    <DeleteOutlined />
+                  </Popconfirm>
+                </div>
               </div>
             </div>
           ))}
