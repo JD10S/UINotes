@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input, message,Popconfirm } from "antd";
-import { PlusOutlined,EditOutlined,DeleteOutlined } from "@ant-design/icons";
+import { Button, Input, message, Popconfirm, Modal, Form } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import Cookies from 'universal-cookie';
-import { indexedDBLocalPersistence } from "firebase/auth";
 
 const MenuList = ({ onsetSelectedCategory }) => {
   const baseUrl = "https://localhost:7169/CategoryControllers";
   const cookies = new Cookies();
   const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingCategoryName, setEditingCategoryName] = useState("");
 
-
-  const loadCategory = async () =>{
+  const loadCategory = async () => {
     try {
       const response = await axios.get(`${baseUrl}/${cookies.get('userId')}`);
-      console.log(response)
-      setCategories(response.data)
+      setCategories(response.data);
     } catch (error) {
-      
+      console.error("Error al cargar las categorías:", error);
     }
-  }
-  useEffect(()=>{
-    loadCategory().then()
-  },[])
+  };
+
+  useEffect(() => {
+    loadCategory();
+  }, []);
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
@@ -39,7 +40,7 @@ const MenuList = ({ onsetSelectedCategory }) => {
       if (newCategoryName.trim() !== "") {
         const response = await axios.post(`${baseUrl}?Name=${newCategoryName}&IdUser=${cookies.get('userId')}`);
         setNewCategoryName("");
-        loadCategory().then();
+        loadCategory();
         message.success("Categoría añadida correctamente.");
       } else {
         message.error("Por favor ingresa el nombre de la categoría.");
@@ -50,12 +51,13 @@ const MenuList = ({ onsetSelectedCategory }) => {
     }
   };
 
-  const handleEdit = async (idCategory) =>{
+  const handleEdit = async () => {
     try {
-      if (newCategoryName.trim() !== "") {
-        const response = await axios.put(`${baseUrl}?Name=${newCategoryName}&idCategory=${idCategory}&IdUser=${cookies.get('userId')}`);
-        setNewCategoryName("");
-        loadCategory().then();
+      if (editingCategory && editingCategoryName.trim() !== "") {
+        const response = await axios.put(`${baseUrl}?Name=${editingCategoryName}&idCategory=${editingCategory.idCategory}&IdUser=${cookies.get('userId')}`);
+        setEditModalVisible(false);
+        setEditingCategory(null); 
+        loadCategory();
         message.success("Categoría editada correctamente.");
       } else {
         message.error("Por favor ingresa el nombre de la categoría.");
@@ -70,11 +72,11 @@ const MenuList = ({ onsetSelectedCategory }) => {
   const handleDelete = async (idCategory) =>{
     try {
       const response = await axios.delete(`${baseUrl}?id=${idCategory}`)
-      loadCategory().then();
+      loadCategory();
     } catch (error) {
-      
+      console.error("Error al eliminar la categoría:", error);
+      message.error("Error al eliminar la categoría. Por favor, intenta de nuevo más tarde.");
     }
-    
   }
 
   return (
@@ -97,28 +99,42 @@ const MenuList = ({ onsetSelectedCategory }) => {
         <div className="category-list-container">
           {categories.map(category => (
             <div
-              key={indexedDBLocalPersistence} 
+              key={category.idCategory}
               className={`category-item ${selectedCategory === category ? 'selected' : ''}`}
               style={{ color: "white" }}
               onClick={() => handleCategoryClick(category)}
             >
               {category.name}
               <div className="category-actions">
-                        <EditOutlined onClick={() => handleEdit(category.idCategory)} />
-                        <Popconfirm
-                          title="¿Estás seguro que quieres eliminar esta categoría?"
-                          onConfirm={() => handleDelete(category.idCategory)}
-                          okText="Sí"
-                          cancelText="No"
-                        >
-                          <DeleteOutlined />
-                        </Popconfirm>
-                      </div>
+                <EditOutlined onClick={() => {setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);}} />
+                <Popconfirm
+                  title="¿Estás seguro que quieres eliminar esta categoría?"
+                  onConfirm={() => handleDelete(category.idCategory)}
+                  okText="Sí"
+                  cancelText="No"
+                >
+                  <DeleteOutlined />
+                </Popconfirm>
+              </div>
             </div>
-            
           ))}
         </div>
       )}
+      <Modal
+        title="Editar Categoría"
+        visible={editModalVisible}
+        onCancel={() => {setEditModalVisible(false); setEditingCategory(null); setNewCategoryName("");}}
+        footer={[
+          <Button key="cancel" onClick={() => {setEditModalVisible(false); setEditingCategory(null); setNewCategoryName("");}}>Cancelar</Button>,
+          <Button key="edit" type="primary" onClick={handleEdit}>Editar</Button>,
+        ]}
+      >
+        <Form>
+          <Form.Item label="Nombre de la Categoría">
+            <Input value={editingCategoryName} onChange={(e) => setEditingCategoryName(e.target.value)} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
