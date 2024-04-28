@@ -107,6 +107,7 @@ const MenuList = ({ onsetSelectedCategory }) => {
               <span className="category-name">{category.name}</span>
               <div className="category-actions">
                 <div className="icon-container">
+                <PlusOutlined  />
                   <EditOutlined onClick={() => {setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);}} />
                   <Popconfirm
                     title="¿Estás seguro que quieres eliminar esta categoría?"

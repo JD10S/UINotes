@@ -58,48 +58,46 @@ const Notes = () => {
         navigate('/');
     };
 
-    const handleAddCard = async () => {
+    const handleAddNoteClick = async () => {
         try {
-            if (selectedCategory) {
-                const response = await axios.post(`https://localhost:7169/NoteControllers`, {
-                    IdCategory: selectedCategory.id,
-                    Title: content
-                });
-                const newCard = {
-                    id: response.data.id,
-                    content: content
-                };
-                setCards(prevCards => [...prevCards, newCard]);
-                message.success("Nota añadida correctamente.");
-            } else {
-                message.error("Por favor selecciona una categoría.");
-            }
+          if (selectedCategory) {
+            const response = await axios.post(`https://localhost:7169/NoteControllers`, {
+              IdCategory: selectedCategory.id,
+              Title: content
+            });
+            const newCard = {
+              id: response.data.id,
+              content: content
+            };
+            setCards(prevCards => [...prevCards, newCard]);
+            message.success("Nota añadida correctamente.");
+          } else {
+            message.error("Por favor selecciona una categoría.");
+          }
         } catch (error) {
-            console.error("Error adding note:", error);
-            message.error("Error adding note. Please try again later.");
+          console.error("Error al añadir la nota:", error);
+          message.error("Error al añadir la nota. Por favor, inténtalo de nuevo más tarde.");
         }
-    };
+      };
 
     const handleCardClick = (cardId, cardContent) => {
         setSelectedCardId(cardId);
         setContent(cardContent);
     };
 
-    const handleContainerClick = () => {
-        setSelectedCardId(null);
-    };
+  
 
     return (
-        <Layout className="notes-container" onClick={handleContainerClick}>
+        <Layout className="notes-container" >
             <Sider className='sidebar'>
                 <Logo />
                 <ExitButton onClick={handleLogout} className="exit-button" />
-                <MenuList setSelectedCategory={setSelectedCategory} />
+                <MenuList onsetSelectedCategory={setSelectedCategory} onAddNote={handleAddNoteClick} />
             </Sider>
             <Layout className="Nnotes-container" style={{ maxWidth: '400px' }}>
                 <div className="title-and-button-container">
                     <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px' }}>{selectedCategory ? selectedCategory.Name : 'Notas'}</h1>
-                    <Button type="primary" icon={<PlusOutlined />} style={{ marginLeft: '10px' }} onClick={handleAddCard} />
+                    <Button type="text" icon={<PlusOutlined />} onClick={handleAddNoteClick} style={{ color: "white", marginTop: "10px" }} > Añadir Nota </Button>
                 </div>
                 <AutoComplete style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}>
                     <Input suffix={<SearchOutlined />} placeholder="Buscar" />
