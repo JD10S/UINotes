@@ -4,13 +4,13 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import Cookies from 'universal-cookie';
 
-const MenuList = ({ onsetSelectedCategory }) => {
+const MenuList = ({ setSelectedCategoryName}) => {
   const baseUrl = "https://localhost:7169/CategoryControllers";
   const cookies = new Cookies();
   const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
 
@@ -27,14 +27,15 @@ const MenuList = ({ onsetSelectedCategory }) => {
     loadCategory();
   }, []);
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-  };
-  
+
   const handleChange = (e) => {
     setNewCategoryName(e.target.value);
   };
 
+  const handleCategoryDoubleClick = (category) => {
+    console.log(`Categoría "${category.name}" seleccionada.`);
+    setSelectedCategoryName(category ? category.name : 'Notas')
+  };
   const handleAddCategory = async () => {
     try {
       if (newCategoryName.trim() !== "") {
@@ -59,6 +60,7 @@ const MenuList = ({ onsetSelectedCategory }) => {
         setEditingCategory(null); 
         loadCategory();
         message.success("Categoría editada correctamente.");
+        setSelectedCategoryName(editingCategoryName);
       } else {
         message.error("Por favor ingresa el nombre de la categoría.");
       }
@@ -78,6 +80,9 @@ const MenuList = ({ onsetSelectedCategory }) => {
       message.error("Error al eliminar la categoría. Por favor, intenta de nuevo más tarde.");
     }
   }
+
+
+ 
 
   return (
     <div className="menu-container">
@@ -102,12 +107,11 @@ const MenuList = ({ onsetSelectedCategory }) => {
               key={category.idCategory}
               className={`category-item ${selectedCategory === category ? 'selected' : ''}`}
               style={{ color: "white" }}
-              onClick={() => handleCategoryClick(category)}
+              onDoubleClick={() => handleCategoryDoubleClick(category)}
             >
-              <span className="category-name">{category.name}</span>
+              <div className="category-name">{category.name}</div>
               <div className="category-actions">
                 <div className="icon-container">
-                <PlusOutlined  />
                   <EditOutlined onClick={() => {setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);}} />
                   <Popconfirm
                     title="¿Estás seguro que quieres eliminar esta categoría?"

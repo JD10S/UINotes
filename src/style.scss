@@ -34,7 +34,14 @@ body {
   text-overflow: ellipsis;
   position: relative;
   
-  
+  .category-name{
+    
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    max-width: 122px;
+    user-select: none;
+  }
  
 
   .category-actions {
@@ -73,6 +80,7 @@ body {
 
 .title-and-button-container > .Title-Ntes {
     margin-right: 200px; 
+    
 }
 
 //

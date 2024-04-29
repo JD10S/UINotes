@@ -14,13 +14,14 @@ const { Sider } = Layout;
 
 const Notes = () => {
     const [content, setContent] = useState('');
-    const [cards, setCards] = useState([]);
-    const [selectedCardId, setSelectedCardId] = useState(null);
     const navigate = useNavigate(); 
     const cookies = new Cookies();
-    const [userName, setUserName] = useState('');
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null); 
+    const [userName, setUserName] = useState('');
+    const [selectedCategoryName, setSelectedCategoryName] = useState('Notas');
+    const [notes, setNotes] = useState([]);
+    
 
     useEffect(() => {
         const token = cookies.get('token');
@@ -47,7 +48,38 @@ const Notes = () => {
         } else {
             navigate('/');
         }
+        const handleClickOutside = (event) => {
+           
+            const notesContainer = document.querySelector('.notes-container');
+            if (notesContainer && !notesContainer.contains(event.target)) {
+                setSelectedCategory(null);
+                setSelectedCategoryName('Notas');
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+
+       
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
     }, []);
+   
+    
+    useEffect(() => {
+        if (selectedCategory) {
+            axios.get(`https://localhost:7169/NotesControllers/${selectedCategory.id}`, {
+                headers: {
+                    Authorization: `Bearer ${cookies.get('token')}`
+                }
+            })
+            .then(response => {
+                setNotes(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching notes:', error);
+            });
+        }
+    }, [selectedCategory]);
 
     const handleLogout = () => {
         cookies.remove('token');
@@ -55,35 +87,11 @@ const Notes = () => {
         setUserName('');
         setCategories([]);
         setSelectedCategory(null);
+        setSelectedCategoryName('Notas');
         navigate('/');
     };
 
-    const handleAddNoteClick = async () => {
-        try {
-          if (selectedCategory) {
-            const response = await axios.post(`https://localhost:7169/NoteControllers`, {
-              IdCategory: selectedCategory.id,
-              Title: content
-            });
-            const newCard = {
-              id: response.data.id,
-              content: content
-            };
-            setCards(prevCards => [...prevCards, newCard]);
-            message.success("Nota añadida correctamente.");
-          } else {
-            message.error("Por favor selecciona una categoría.");
-          }
-        } catch (error) {
-          console.error("Error al añadir la nota:", error);
-          message.error("Error al añadir la nota. Por favor, inténtalo de nuevo más tarde.");
-        }
-      };
-
-    const handleCardClick = (cardId, cardContent) => {
-        setSelectedCardId(cardId);
-        setContent(cardContent);
-    };
+   
 
   
 
@@ -92,23 +100,25 @@ const Notes = () => {
             <Sider className='sidebar'>
                 <Logo />
                 <ExitButton onClick={handleLogout} className="exit-button" />
-                <MenuList onsetSelectedCategory={setSelectedCategory} onAddNote={handleAddNoteClick} />
+                <MenuList onsetSelectedCategory={setSelectedCategory} setSelectedCategoryName={setSelectedCategoryName} />
+                
+
+
             </Sider>
             <Layout className="Nnotes-container" style={{ maxWidth: '400px' }}>
                 <div className="title-and-button-container">
-                    <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px' }}>{selectedCategory ? selectedCategory.Name : 'Notas'}</h1>
-                    <Button type="text" icon={<PlusOutlined />} onClick={handleAddNoteClick} style={{ color: "white", marginTop: "10px" }} > Añadir Nota </Button>
+                    <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', whiteSpace:'nowrap',overflow: 'hidden' ,textOverflow:'ellipsis' }}>{selectedCategoryName}</h1>
+                
                 </div>
                 <AutoComplete style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}>
                     <Input suffix={<SearchOutlined />} placeholder="Buscar" />
                 </AutoComplete>
-                {cards.map(card => (
+                {notes.map(note => (
                     <Card 
-                        key={card.id} 
-                        style={{ width: 300, marginTop: '20px', marginLeft: '60px', cursor: 'pointer', backgroundColor: selectedCardId === card.id ? '#f0f0f0' : 'white' }}
-                        onClick={() => handleCardClick(card.id, card.content)}
+                        key={note.id} 
+                        style={{ width: 300, marginTop: '20px', marginLeft: '60px', cursor: 'pointer' }}
                     >
-                        <p className="limited-height-content">{card.content}</p>
+                        <p>{note.content}</p>
                     </Card>
                 ))}
             </Layout>
