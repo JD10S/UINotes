@@ -108,7 +108,11 @@ const Notes = () => {
             <Layout className="Nnotes-container" style={{ maxWidth: '400px' }}>
                 <div className="title-and-button-container">
                     <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', whiteSpace:'nowrap',overflow: 'hidden' ,textOverflow:'ellipsis' }}>{selectedCategoryName}</h1>
-                
+                    
+                </div>
+                <div className="button-plus">
+                <PlusOutlined/>
+                <span className="button-text">Añadir Nota</span>
                 </div>
                 <AutoComplete style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}>
                     <Input suffix={<SearchOutlined />} placeholder="Buscar" />
