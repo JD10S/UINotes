@@ -22,7 +22,7 @@ const Notes = () => {
     const [selectedCategoryName, setSelectedCategoryName] = useState('Notas');
     const [notes, setNotes] = useState([]);
     
-
+   
     useEffect(() => {
         const token = cookies.get('token');
         const userId = cookies.get('userId');
@@ -110,7 +110,7 @@ const Notes = () => {
                     <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', whiteSpace:'nowrap',overflow: 'hidden' ,textOverflow:'ellipsis' }}>{selectedCategoryName}</h1>
                     
                 </div>
-                <div className="button-plus">
+                <div className="button-plus" >
                 <PlusOutlined/>
                 <span className="button-text">Añadir Nota</span>
                 </div>
@@ -122,7 +122,7 @@ const Notes = () => {
                         key={note.id} 
                         style={{ width: 300, marginTop: '20px', marginLeft: '60px', cursor: 'pointer' }}
                     >
-                        <p>{note.content}</p>
+                        
                     </Card>
                 ))}
             </Layout>
@@ -131,7 +131,7 @@ const Notes = () => {
                     style={{ height: '93%' }}
                     theme="snow"
                     value={content}
-                    onChange={setContent}
+                    onChange={(newContent) => handleChangeNoteContent(note.id, newContent)}
                 />
             </Layout>
         </Layout>
