@@ -4,13 +4,13 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import Cookies from 'universal-cookie';
 
-const MenuList = ({ setSelectedCategoryName}) => {
+const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
   const baseUrl = "https://localhost:7169/CategoryControllers";
   const cookies = new Cookies();
   const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategoryState] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
 
@@ -27,15 +27,18 @@ const MenuList = ({ setSelectedCategoryName}) => {
     loadCategory();
   }, []);
 
-
   const handleChange = (e) => {
     setNewCategoryName(e.target.value);
   };
 
   const handleCategoryDoubleClick = (category) => {
     console.log(`Categoría "${category.name}" seleccionada.`);
-    setSelectedCategoryName(category ? category.name : 'Notas')
+    console.log(`"${category.idCategory}"`);
+    setSelectedCategoryName(category ? category.name : 'Notas');
+    setSelectedCategory(category);
+    setEditingCategory(category);
   };
+
   const handleAddCategory = async () => {
     try {
       if (newCategoryName.trim() !== "") {
@@ -57,7 +60,7 @@ const MenuList = ({ setSelectedCategoryName}) => {
       if (editingCategory && editingCategoryName.trim() !== "") {
         const response = await axios.put(`${baseUrl}?Name=${editingCategoryName}&idCategory=${editingCategory.idCategory}&IdUser=${cookies.get('userId')}`);
         setEditModalVisible(false);
-        setEditingCategory(null); 
+        setEditingCategory(null);
         loadCategory();
         message.success("Categoría editada correctamente.");
         setSelectedCategoryName(editingCategoryName);
@@ -69,20 +72,16 @@ const MenuList = ({ setSelectedCategoryName}) => {
       message.error("Error al editar la categoría. Por favor, intenta de nuevo más tarde.");
     }
   };
-  
 
-  const handleDelete = async (idCategory) =>{
+  const handleDelete = async (idCategory) => {
     try {
-      const response = await axios.delete(`${baseUrl}?id=${idCategory}`)
+      const response = await axios.delete(`${baseUrl}?id=${idCategory}`);
       loadCategory();
     } catch (error) {
       console.error("Error al eliminar la categoría:", error);
       message.error("Error al eliminar la categoría. Por favor, intenta de nuevo más tarde.");
     }
-  }
-
-
- 
+  };
 
   return (
     <div className="menu-container">
@@ -112,7 +111,7 @@ const MenuList = ({ setSelectedCategoryName}) => {
               <div className="category-name">{category.name}</div>
               <div className="category-actions">
                 <div className="icon-container">
-                  <EditOutlined onClick={() => {setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);}} />
+                  <EditOutlined onClick={() => { setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true); }} />
                   <Popconfirm
                     title="¿Estás seguro que quieres eliminar esta categoría?"
                     onConfirm={() => handleDelete(category.idCategory)}
@@ -130,9 +129,9 @@ const MenuList = ({ setSelectedCategoryName}) => {
       <Modal
         title="Editar Categoría"
         open={editModalVisible}
-        onCancel={() => {setEditModalVisible(false); setEditingCategory(null); setNewCategoryName("");}}
+        onCancel={() => { setEditModalVisible(false); setEditingCategory(null); setNewCategoryName(""); }}
         footer={[
-          <Button key="cancel" onClick={() => {setEditModalVisible(false); setEditingCategory(null); setNewCategoryName("");}}>Cancelar</Button>,
+          <Button key="cancel" onClick={() => { setEditModalVisible(false); setEditingCategory(null); setNewCategoryName(""); }}>Cancelar</Button>,
           <Button key="edit" type="primary" onClick={handleEdit}>Editar</Button>,
         ]}
       >
@@ -147,3 +146,5 @@ const MenuList = ({ setSelectedCategoryName}) => {
 };
 
 export default MenuList;
+
+// const [categories, setCategories] = useState([]);
