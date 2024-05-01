@@ -20,21 +20,27 @@ const Notes = () => {
     const [selectedCategory, setSelectedCategory] = useState(null); 
     const [selectedCategoryName, setSelectedCategoryName] = useState('Notas');
     const [notes, setNotes] = useState([]);
-
+    const [isCategoryDeleted, setIsCategoryDeleted] = useState(false); 
     const loadNotes = async () => {
         try {
-          const response = await axios.get(`${baseUrl}/${selectedCategory.idCategory}`);
-          setNotes(response.data);
+            if (selectedCategory) {
+                const response = await axios.get(`${baseUrl}/${selectedCategory.idCategory}`);
+                setNotes(response.data);
+            } else {
+                setNotes([]);
+            }
         } catch (error) {
-          console.error("Error al cargar las notas:", error);
+            console.error("Error al cargar las notas:", error);
         }
     };
     
     useEffect(() => {
-        if (selectedCategory) {
-            loadNotes();
-        }
-    }, [selectedCategory]);
+        loadNotes();
+    }, [selectedCategory]); 
+
+    useEffect(() => {
+        setIsCategoryDeleted(false);
+    }, [notes]); 
 
     const handleLogout = () => {
         cookies.remove('token');
@@ -45,13 +51,12 @@ const Notes = () => {
     };
 
     const handleAddNote = () => {
-        if ( !selectedCategory || !selectedCategory.idCategory ) {
+        if (!selectedCategory || !selectedCategory.idCategory) {
             message.error('Por favor selecciona una categoría antes de agregar una nota.');
             return;
         }
         if (!content.trim()) {
-                 message.error('Por favor ingresa texto en la nota.');
-           
+            message.error('Por favor ingresa texto en la nota.');
             return;
         }
         axios.post(`${baseUrl}?IdCategory=${selectedCategory.idCategory}&Title=${encodeURIComponent(content)}`)
@@ -69,12 +74,12 @@ const Notes = () => {
     const handleChangeNoteContent = (newContent) => {
         setContent(newContent);
     };
+
     const updateNotes = (deletedCategoryId) => {
-    
         setNotes(prevNotes => prevNotes.filter(note => note.idCategory !== deletedCategoryId));
-        if (selectedCategory && selectedCategory.idCategory === deletedCategoryId) {
-            setSelectedCategoryName('Notas');
-        }
+        setSelectedCategory(null); 
+        setSelectedCategoryName('Notas');
+        setIsCategoryDeleted(true); 
     };
   
     return (
@@ -88,7 +93,7 @@ const Notes = () => {
                 <div className="title-and-button-container">
                     <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', whiteSpace:'nowrap',overflow: 'hidden' ,textOverflow:'ellipsis' }}>{selectedCategoryName}</h1>
                 </div>
-                <div className="button-plus" onClick={handleAddNote} disabled={!selectedCategory || !selectedCategory.idCategory || !notes.length}>
+                <div className="button-plus" onClick={handleAddNote} disabled={!selectedCategory || !selectedCategory.idCategory || isCategoryDeleted}>
                     <PlusOutlined />
                     <span className="button-text">Añadir Nota</span>
                 </div>
@@ -99,7 +104,6 @@ const Notes = () => {
                     <Card 
                         key={note.id} 
                         style={{ width: 300, marginTop: '20px', marginLeft: '60px', cursor: 'pointer' }}
-                        
                     >
                         {note.title && note.title.replace(/<\/?[^>]+(>|$)/g, "")}
                     </Card>
