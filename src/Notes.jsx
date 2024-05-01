@@ -45,8 +45,8 @@ const Notes = () => {
     };
 
     const handleAddNote = () => {
-        if ( !selectedCategory || !selectedCategory.idCategory || !content.trim()) {
-            console.error('No se ha seleccionado ninguna categoría.');
+        if ( !selectedCategory || !selectedCategory.idCategory ) {
+            message.error('Por favor selecciona una categoría antes de agregar una nota.');
             return;
         }
         if (!content.trim()) {
@@ -88,7 +88,7 @@ const Notes = () => {
                 <div className="title-and-button-container">
                     <h1 className='Title-Ntes' style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', whiteSpace:'nowrap',overflow: 'hidden' ,textOverflow:'ellipsis' }}>{selectedCategoryName}</h1>
                 </div>
-                <div className="button-plus" onClick={handleAddNote}>
+                <div className="button-plus" onClick={handleAddNote} disabled={!selectedCategory || !selectedCategory.idCategory || !notes.length}>
                     <PlusOutlined />
                     <span className="button-text">Añadir Nota</span>
                 </div>
