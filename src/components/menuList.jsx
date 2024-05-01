@@ -11,7 +11,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategoryState] = useState(null);
-  const [editingCategory, setEditingCategory] = useState(null);
+  // const [editingCategory, setEditingCategory] = useState(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
 
   const loadCategory = async () => {
@@ -36,7 +36,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
     console.log(`"${category.idCategory}"`);
     setSelectedCategoryName(category ? category.name : 'Notas');
     setSelectedCategory(category);
-    setEditingCategory(category);
+    // setEditingCategory(category);
   };
 
   const handleAddCategory = async () => {

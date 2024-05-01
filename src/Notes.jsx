@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, AutoComplete, Card, Input } from 'antd'; 
+import { Layout, AutoComplete, Card, Input, message } from 'antd'; 
 import Logo from './components/logo';
 import MenuList from './components/menuList';
 import ExitButton from './components/buttonExit';
@@ -23,7 +23,7 @@ const Notes = () => {
 
     const loadNotes = async () => {
         try {
-          const response = await axios.get(`${baseUrl}?IdCategory=${selectedCategory.idCategory}`);
+          const response = await axios.get(`${baseUrl}/${selectedCategory.idCategory}`);
           setNotes(response.data);
         } catch (error) {
           console.error("Error al cargar las notas:", error);
@@ -45,16 +45,18 @@ const Notes = () => {
     };
 
     const handleAddNote = () => {
-        if (!selectedCategory) {
+        if (!selectedCategory || !selectedCategory.idCategory || !content.trim()) {
             console.error('No se ha seleccionado ninguna categoría.');
             return;
         }
         if (!content.trim()) {
-            console.error('El contenido de la nota está vacío.');
+                 message.error('Por favor ingresa texto en la nota.');
+           
             return;
         }
         axios.post(`${baseUrl}?IdCategory=${selectedCategory.idCategory}&Title=${encodeURIComponent(content)}`)
             .then(response => {
+                
                 setNotes(prevNotes => [...prevNotes, response.data]);
                 setContent('');
             })
@@ -85,12 +87,13 @@ const Notes = () => {
                 <AutoComplete style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}>
                     <Input suffix={<SearchOutlined />} placeholder="Buscar" />
                 </AutoComplete>
-                {notes.map(note => (
+                {notes&&notes.map(note => (
                     <Card 
                         key={note.id} 
                         style={{ width: 300, marginTop: '20px', marginLeft: '60px', cursor: 'pointer' }}
+                        
                     >
-                        {note.title}
+                        {note.title && note.title.replace(/<\/?[^>]+(>|$)/g, "")}
                     </Card>
                 ))}
             </Layout>
