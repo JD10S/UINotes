@@ -4,7 +4,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import axios from "axios";
 import Cookies from 'universal-cookie';
 
-const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
+const MenuList = ({ setSelectedCategoryName, setSelectedCategory,updateNotes }) => {
   const baseUrl = "https://localhost:7169/CategoryControllers";
   const cookies = new Cookies();
   const [categories, setCategories] = useState([]);
@@ -13,6 +13,9 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
   const [selectedCategory, setSelectedCategoryState] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingCategoryName, setEditingCategoryName] = useState("");
+
+ 
+
 
   const loadCategory = async () => {
     try {
@@ -77,11 +80,13 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
     try {
       const response = await axios.delete(`${baseUrl}?id=${idCategory}`);
       loadCategory();
+      updateNotes(idCategory);
     } catch (error) {
       console.error("Error al eliminar la categoría:", error);
       message.error("Error al eliminar la categoría. Por favor, intenta de nuevo más tarde.");
     }
   };
+
 
   return (
     <div className="menu-container">
@@ -111,7 +116,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory }) => {
               <div className="category-name">{category.name}</div>
               <div className="category-actions">
                 <div className="icon-container">
-                  <EditOutlined onClick={() => { setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true); }} />
+                  <EditOutlined onClick={() => { setEditingCategory(category); setEditingCategoryName(category.name); setEditModalVisible(true);  }} />
                   <Popconfirm
                     title="¿Estás seguro que quieres eliminar esta categoría?"
                     onConfirm={() => handleDelete(category.idCategory)}

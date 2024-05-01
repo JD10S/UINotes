@@ -45,7 +45,7 @@ const Notes = () => {
     };
 
     const handleAddNote = () => {
-        if (!selectedCategory || !selectedCategory.idCategory || !content.trim()) {
+        if ( !selectedCategory || !selectedCategory.idCategory || !content.trim()) {
             console.error('No se ha seleccionado ninguna categoría.');
             return;
         }
@@ -56,9 +56,10 @@ const Notes = () => {
         }
         axios.post(`${baseUrl}?IdCategory=${selectedCategory.idCategory}&Title=${encodeURIComponent(content)}`)
             .then(response => {
-                
-                setNotes(prevNotes => [...prevNotes, response.data]);
+                const newNote = response.data;
+                setNotes(prevNotes => [...prevNotes, newNote]);
                 setContent('');
+                loadNotes();
             })
             .catch(error => {
                 console.error('Error adding note:', error);
@@ -68,13 +69,20 @@ const Notes = () => {
     const handleChangeNoteContent = (newContent) => {
         setContent(newContent);
     };
+    const updateNotes = (deletedCategoryId) => {
+    
+        setNotes(prevNotes => prevNotes.filter(note => note.idCategory !== deletedCategoryId));
+        if (selectedCategory && selectedCategory.idCategory === deletedCategoryId) {
+            setSelectedCategoryName('Notas');
+        }
+    };
   
     return (
         <Layout className="notes-container">
             <Sider className='sidebar'>
                 <Logo />
                 <ExitButton onClick={handleLogout} className="exit-button" />
-                <MenuList setSelectedCategoryName={setSelectedCategoryName} setSelectedCategory={setSelectedCategory} />
+                <MenuList setSelectedCategoryName={setSelectedCategoryName} setSelectedCategory={setSelectedCategory} updateNotes={updateNotes} />
             </Sider>
             <Layout className="Nnotes-container" style={{ maxWidth: '400px' }}>
                 <div className="title-and-button-container">
