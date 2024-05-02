@@ -81,6 +81,9 @@ const Notes = () => {
     const handleChangeNoteContent = (newContent) => {
         setContent(newContent);
     };
+    const handleCardClick = (noteContent) => {
+        setContent(noteContent);
+    };
 
     const updateNotes = (deletedCategoryId) => {
         setNotes(prevNotes => prevNotes.filter(note => note.idCategory !== deletedCategoryId));
@@ -88,19 +91,23 @@ const Notes = () => {
         setSelectedCategoryName('Notas');
         setIsCategoryDeleted(true); 
     };
-    // const handleSearch = async (value) => {
-    //     setSearchText(value);
-    //     try {
-    //         const response = await axios.get(`${baseUrl}/search?query=${encodeURIComponent(value)}`);
-    //         setSearchResults(response.data);
-    //     } catch (error) {
-    //         console.error("Error al buscar notas:", error);
-    //     }
-    // };
+    
 
-    const handleEditNote = (noteId) => {
-        
-        console.log("Editar nota con ID:", noteId);
+    const handleEditNote = async (noteId) => {
+        try {
+            
+            const newNoteContent = content;
+            
+           
+            const response = await axios.put(`${baseUrl}?id=${noteId}&Title=${ newNoteContent }`);
+            
+            
+            console.log('Nota actualizada correctamente:', response.data);
+            loadNotes();
+        } catch (error) {
+            console.error('Error al editar la nota:', error);
+            message.error('Error al editar la nota. Por favor, inténtalo de nuevo más tarde.');
+        }
     };
 
     const handleDeleteNote = async (noteId) => {
@@ -138,6 +145,7 @@ const Notes = () => {
                     <Card 
                         key={note.id} 
                         style={{ width: 300, marginTop: '20px', marginLeft: '60px', cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', wordWrap: 'break-word' }}
+                        onClick={() => handleCardClick(note.title)}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ maxWidth: '80%', overflow: 'hidden', textOverflow: 'ellipsis' }}>{note.title && note.title.replace(/<\/?[^>]+(>|$)/g, "")}</span>
