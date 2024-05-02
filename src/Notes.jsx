@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, AutoComplete, Card, Input, message, Button, Popconfirm } from 'antd'; 
+import { Layout, AutoComplete, Card, Input, message, Button, Popconfirm,Modal } from 'antd'; 
 import Logo from './components/logo';
 import MenuList from './components/menuList';
 import ExitButton from './components/buttonExit';
@@ -15,12 +15,16 @@ const { Sider } = Layout;
 const Notes = () => {
     const baseUrl = "https://localhost:7169/NoteControllers";
     const [content, setContent] = useState('');
+    const [originalContent, setOriginalContent] = useState('');
     const navigate = useNavigate(); 
     const cookies = new Cookies();
     const [selectedCategory, setSelectedCategory] = useState(null); 
     const [selectedCategoryName, setSelectedCategoryName] = useState('Notas');
     const [notes, setNotes] = useState([]);
     const [isCategoryDeleted, setIsCategoryDeleted] = useState(false); 
+
+
+
     const loadNotes = async () => {
         try {
             if (selectedCategory) {
@@ -83,6 +87,7 @@ const Notes = () => {
     };
     const handleCardClick = (noteContent) => {
         setContent(noteContent);
+        setOriginalContent(noteContent);
     };
 
     const updateNotes = (deletedCategoryId) => {
@@ -95,27 +100,46 @@ const Notes = () => {
 
     const handleEditNote = async (noteId) => {
         try {
-            
             const newNoteContent = content;
-            
-           
-            const response = await axios.put(`${baseUrl}?id=${noteId}&Title=${ newNoteContent }`);
-            
-            
-            console.log('Nota actualizada correctamente:', response.data);
-            loadNotes();
+            if (newNoteContent !== originalContent) {
+                Modal.confirm({
+                    title: 'Guardar cambios',
+                    content: '¿Desea guardar los cambios realizados en la nota?',
+                    onOk: async () => {
+                        
+                        const response = await axios.put(`${baseUrl}?id=${noteId}&Title=${newNoteContent}`);
+                        console.log('Nota actualizada correctamente:', response.data);
+                        
+                        setNotes(prevNotes =>
+                            prevNotes.map(note =>
+                                note.id === noteId ? { ...note, title: newNoteContent } : note
+                            )
+                        );
+                        
+                        setOriginalContent(newNoteContent);
+                       
+                        setContent(newNoteContent);
+                    },
+                    onCancel: () => {
+                        console.log('No se realizaron cambios en la nota.');
+                    },
+                });
+            } else {
+                console.log('No se realizaron cambios en la nota.');
+            }
         } catch (error) {
             console.error('Error al editar la nota:', error);
             message.error('Error al editar la nota. Por favor, inténtalo de nuevo más tarde.');
         }
     };
+    
 
     const handleDeleteNote = async (noteId) => {
       
         try {
             const response = await axios.delete(`${baseUrl}?id=${noteId}`);
             loadNotes();
-            
+            setContent('');
           } catch (error) {
             console.error("Error al eliminar la nota:", error);
             message.error("Error al eliminar la nota. Por favor, intenta de nuevo más tarde.");

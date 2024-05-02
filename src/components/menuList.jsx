@@ -111,7 +111,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory,updateNotes }) 
               key={category.idCategory}
               className={`category-item ${selectedCategory === category ? 'selected' : ''}`}
               style={{ color: "white" }}
-              onDoubleClick={() => handleCategoryDoubleClick(category)}
+              onClick={() => handleCategoryDoubleClick(category)}
             >
               <div className="category-name">{category.name}</div>
               <div className="category-actions">
