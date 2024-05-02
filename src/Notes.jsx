@@ -22,6 +22,7 @@ const Notes = () => {
     const [selectedCategoryName, setSelectedCategoryName] = useState('Notas');
     const [notes, setNotes] = useState([]);
     const [isCategoryDeleted, setIsCategoryDeleted] = useState(false); 
+    const [filteredNotes, setFilteredNotes] = useState([]);
 
 
 
@@ -145,6 +146,25 @@ const Notes = () => {
             message.error("Error al eliminar la nota. Por favor, intenta de nuevo más tarde.");
           }
     };
+    const handleSearch = (value) => {
+        if (value === '') {
+            loadNotes();
+        } else {
+            const filtered = notes.filter(note =>
+                note.title.toLowerCase().includes(value.toLowerCase())
+            );
+            const sortedNotes = filtered.sort((a, b) => {
+                if (a.title.toLowerCase().startsWith(value.toLowerCase())) {
+                    return -1; 
+                } else if (b.title.toLowerCase().startsWith(value.toLowerCase())) {
+                    return 1; 
+                } else {
+                    return 0; 
+                }
+            });
+            setNotes(sortedNotes);
+        }
+    };
 
     return (
         <Layout className="notes-container">
@@ -161,10 +181,14 @@ const Notes = () => {
                     <PlusOutlined />
                     <span className="button-text">Añadir Nota</span>
                 </div>
-                <AutoComplete style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}>
-                    <Input suffix={<SearchOutlined />} placeholder="Buscar" />
+                <AutoComplete
+                    style={{ width: 230, marginTop: '20px', marginLeft: '90px' }}
+                    onSearch={handleSearch}
+                    placeholder="Buscar"
+                >
+                    <Input suffix={<SearchOutlined />} />
                 </AutoComplete>
-                <div style={{ maxHeight: 'calc(100vh - 129px)', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', '&::-webkit-scrollbar': { display: 'none' } }} >
+                <div style={{ maxHeight: 'calc(100vh - 129px)', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', '&::WebkitScrollbar': { display: 'none' } }} >
                 {notes && notes.map(note => (
                     <Card 
                         key={note.id} 
