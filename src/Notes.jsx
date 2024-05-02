@@ -109,7 +109,7 @@ const Notes = () => {
                     onOk: async () => {
                         
                         const response = await axios.put(`${baseUrl}?id=${noteId}&Title=${newNoteContent}`);
-                        console.log('Nota actualizada correctamente:', response.data);
+                        // console.log('Nota actualizada correctamente:', response.data);
                         
                         setNotes(prevNotes =>
                             prevNotes.map(note =>
@@ -122,14 +122,14 @@ const Notes = () => {
                         setContent(newNoteContent);
                     },
                     onCancel: () => {
-                        console.log('No se realizaron cambios en la nota.');
+                        message.error('No se realizaron cambios en la nota.');
                     },
                 });
             } else {
-                console.log('No se realizaron cambios en la nota.');
+                message.error('No se realizaron cambios en la nota.');
             }
         } catch (error) {
-            console.error('Error al editar la nota:', error);
+            
             message.error('Error al editar la nota. Por favor, inténtalo de nuevo más tarde.');
         }
     };

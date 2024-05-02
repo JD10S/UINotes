@@ -53,7 +53,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory,updateNotes }) 
         message.error("Por favor ingresa el nombre de la categoría.");
       }
     } catch (error) {
-      console.error("Error al agregar la categoría:", error);
+    
       message.error("Error al agregar la categoría. Por favor, intenta de nuevo más tarde.");
     }
   };
@@ -71,7 +71,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory,updateNotes }) 
         message.error("Por favor ingresa el nombre de la categoría.");
       }
     } catch (error) {
-      console.error("Error al editar la categoría:", error);
+      // console.error("Error al editar la categoría:", error);
       message.error("Error al editar la categoría. Por favor, intenta de nuevo más tarde.");
     }
   };
@@ -82,7 +82,7 @@ const MenuList = ({ setSelectedCategoryName, setSelectedCategory,updateNotes }) 
       loadCategory();
       updateNotes(idCategory);
     } catch (error) {
-      console.error("Error al eliminar la categoría:", error);
+      // console.error("Error al eliminar la categoría:", error);
       message.error("Error al eliminar la categoría. Por favor, intenta de nuevo más tarde.");
     }
   };
